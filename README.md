@@ -13,13 +13,20 @@ Exception in thread "main" java.net.UnknownHostException: google.com: System err
 	at Main.main(Main.java:7)
 ```
 
+Broken:
 ```
 docker build -f Dockerfile.scratch -t graalvm-dns-issue-scratch .
 docker run --rm graalvm-dns-issue-scratch
 
 docker build -f Dockerfile.distroless-static -t graalvm-dns-issue-distroless-static .
 docker run --rm graalvm-dns-issue-distroless-static
+```
 
+Works:
+```
 docker build -f Dockerfile.ubuntu -t graalvm-dns-issue-ubuntu .
 docker run --rm graalvm-dns-issue-ubuntu
+
+docker build -f Dockerfile.scratch-fix -t graalvm-dns-issue-scratch-fix .
+docker run --rm graalvm-dns-issue-scratch-fix
 ```
