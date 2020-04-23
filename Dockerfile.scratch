@@ -1,0 +1,36 @@
+FROM oracle/graalvm-ce:20.0.0-java11 as builder
+
+WORKDIR /app
+COPY . /app
+
+RUN gu install native-image
+
+RUN /opt/graalvm-ce-java11-20.0.0/bin/javac Main.java
+RUN /opt/graalvm-ce-java11-20.0.0/lib/svm/bin/native-image \
+  --verbose \
+  --no-server \
+  --no-fallback \
+  --static \
+  --enable-http \
+  --enable-https \
+  --enable-all-security-services \
+  --report-unsupported-elements-at-runtime \
+  --allow-incomplete-classpath \
+  -H:+ReportExceptionStackTraces \
+  -H:+ReportUnsupportedElementsAtRuntime \
+  -H:+TraceClassInitialization \
+  -H:+PrintClassInitialization \
+  -H:+StackTrace \
+  -H:+JNI \
+  -H:-SpawnIsolates \
+  -H:-UseServiceLoaderFeature \
+  -H:Name=main \
+  Main
+
+FROM scratch
+
+#COPY --from=builder /etc/hosts /etc/hosts
+
+COPY --from=builder /app/main /main
+
+ENTRYPOINT ["/main"]
